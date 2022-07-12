@@ -20,11 +20,12 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with MFRC522-Python.  If not, see <http://www.gnu.org/licenses/>.
 #
-import RPi.GPIO as GPIO
+import OPi.GPIO as GPIO
 import spidev
 import signal
 import time
 import logging
+import orangepi.pi3
 
 class MFRC522:
     MAX_LEN = 16
@@ -125,7 +126,7 @@ class MFRC522:
 
     serNum = []
 
-    def __init__(self, bus=0, device=0, spd=1000000, pin_mode=10, pin_rst=-1, debugLevel='WARNING'):
+    def __init__(self, bus=1, device=0, spd=1000000, debugLevel='WARNING'):
         self.spi = spidev.SpiDev()
         self.spi.open(bus, device)
         self.spi.max_speed_hz = spd
@@ -135,19 +136,9 @@ class MFRC522:
         level = logging.getLevelName(debugLevel)
         self.logger.setLevel(level)
 
-        gpioMode = GPIO.getmode()
-        
-        if gpioMode is None:
-            GPIO.setmode(pin_mode)
-        else:
-            pin_mode = gpioMode
-            
-        if pin_rst == -1:
-            if pin_mode == 11:
-                pin_rst = 15
-            else:
-                pin_rst = 22
-            
+        GPIO.setmode(orangepi.pi3.BOARD)
+        pin_rst = 22
+
         GPIO.setup(pin_rst, GPIO.OUT)
         GPIO.output(pin_rst, 1)
         self.MFRC522_Init()
